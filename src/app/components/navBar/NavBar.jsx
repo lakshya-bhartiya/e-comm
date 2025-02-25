@@ -1,110 +1,83 @@
-import React from "react";
-import { FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu } from "@headlessui/react";
-import { FaTruck } from "react-icons/fa";
-import { BiCategory } from "react-icons/bi";
-import { FaShoppingCart } from "react-icons/fa";
-import { FaHome } from "react-icons/fa";
-import categories from "../../data/categories";
-import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
+import { useState } from "react";
+import { CiSearch } from "react-icons/ci";
 
 const NavBar = () => {
+  const { user, logout } = useAuth();
+  const { cart } = useCart();
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
-  const {cart} = useCart()
-  const {isLoggedIn, logout} = useAuth()
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (search.trim() === "") return;
+    navigate(`/search?query=${search.trim()}`);
+  };
 
   return (
-    <div>
-      {/* Navbar */}
-      <header className="flex items-center justify-between bg-white shadow-md p-4 mb-4">
-        {/* Logo with Home Link */}
-        <div className="w-16">
-          <Link to="/">
-            <img src="../../../public/logo.png" alt="Logo" className="w-full" />
-          </Link>
-        </div>
+    <nav className="flex justify-between items-center px-6 py-3 bg-gray-100 text-gray-700 shadow-md">
+      {/* Left Section: Logo & Home */}
+      <div className="flex items-center gap-6">
+        <Link to="/" className="text-2xl font-semibold tracking-wide text-gray-800">
+          E-Commerce
+        </Link>
+        <Link to="/" className="text-lg font-medium hover:text-gray-600 transition duration-300">
+          Home
+        </Link>
+        <Link to="/delivery" className="text-lg font-medium hover:text-gray-600 transition duration-300">
+          Delivery
+        </Link>
+      </div>
 
-        {/* Search Bar */}
-        <div className="flex-1 mx-4">
-          <div className="relative">
-            <input
-              type="text"
-              name="searchBar"
-              placeholder="Search products..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <FaSearch className="text-gray-400" />
+      {/* Search Bar */}
+      <form onSubmit={handleSearch} className="flex items-center bg-white border border-gray-300 rounded-full overflow-hidden shadow-sm">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="px-4 py-2 text-gray-700 focus:outline-none w-72"
+        />
+        <button
+          type="submit"
+          className=" text-gray-600 px-4 py-2 hover:bg-gray-300 transition duration-300"
+        >
+          <CiSearch />
+        </button>
+      </form>
+
+      {/* Right Section: Cart & User */}
+      <div className="flex items-center gap-6">
+        <Link to="/cart" className="relative text-lg font-medium hover:text-gray-600 transition duration-300">
+          Cart
+          {cart.length > 0 && (
+            <span className="absolute -top-2 -right-4 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+              {cart.length}
+            </span>
+          )}
+        </Link>
+
+        {user ? (
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-gray-300 text-gray-800 font-bold flex items-center justify-center rounded-full">
+              {user.name.charAt(0).toUpperCase()}
             </div>
-          </div>
-        </div>
-
-        {/* Navigation Links */}
-        <nav className="flex items-center gap-4">
-          <div className="relative group">
-            <Link
-              to={"/"}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2 rounded-lg transition-colors text-decoration-none"
+            <button
+              onClick={logout}
+              className="bg-red-400 hover:bg-red-500 px-4 py-2 rounded-lg transition duration-300 text-white"
             >
-              <FaHome className="text-gray-500" /> Home
-            </Link>
+              Logout
+            </button>
           </div>
-
-          {/* Categories Dropdown */}
-          <div className="relative inline-block text-left">
-            <Menu>
-              <Menu.Button className="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2 rounded-lg transition-colors text-decoration-none">
-                <BiCategory className="text-gray-500" /> Category
-              </Menu.Button>
-              <Menu.Items className="absolute mt-2 bg-white shadow-lg rounded w-40 z-10">
-                {categories?.map((category, index) => (
-                  <Menu.Item key={index}>
-                    {({ active }) => (
-                      <Link
-                        to={`/category/${category}`}
-                        className={`${
-                          active ? "bg-gray-100" : ""
-                        } block px-4 py-2 text-gray-700 text-decoration-none`}
-                      >
-                        {category}
-                      </Link>
-                    )}
-                  </Menu.Item>
-                ))}
-              </Menu.Items>
-            </Menu>
-          </div>
-
-          {/* Delivery Link */}
-          <Link
-            to="/delivery"
-            className="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2 rounded-lg transition-colors text-decoration-none"
-          >
-            <FaTruck className="text-gray-500" />
-            Delivery
-          </Link>
-
-          {/* Cart Button */}
-          <div className="relative group">
-            <Link
-              to={"/cart"}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2 rounded-lg transition-colors text-decoration-none"
-            >
-              <FaShoppingCart className="text-gray-500" /> Cart({cart.length})
-            </Link>
-          </div>
-
-          {/* Login Dropdown or User Name */}
-          {isLoggedIn ? (
-          <button onClick={logout} className="bg-red-500 px-3 py-1 rounded">Logout</button>
         ) : (
-          <a href="/login" className="bg-blue-500 px-3 py-1 rounded">Login</a>
+          <Link to="/login" className="bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-300">
+            Login
+          </Link>
         )}
-        </nav>
-      </header>
-    </div>
+      </div>
+    </nav>
   );
 };
 

@@ -1,24 +1,21 @@
-import React from "react";
-import ProductCard from "../components/productCard/ProductCard";
-import NavBar from "../components/navBar/NavBar";
+import { useLocation } from "react-router-dom";
 import Footer from "../components/footer/Footer";
+import NavBar from "../components/navBar/NavBar";
+import ProductCard from "../components/productCard/ProductCard";
 import products from "../data/products";
+
 const Home = () => {
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       {/* Navbar */}
-      <header>
-        <NavBar />
-      </header>
-      <main>
-        {/* Product Cards */}
-        <div className="p-4">
+      <NavBar />
+      {/* Main Content */}
+      <main className="flex-grow p-6">
             <ProductCard products={products} />
-        </div>
       </main>
-      <footer>
-        <Footer />
-      </footer>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

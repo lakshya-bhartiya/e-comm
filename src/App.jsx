@@ -1,18 +1,16 @@
-import React from 'react'
-import { RouterProvider } from 'react-router-dom'
-import router from './app/routes'
-import { ToastContainer } from 'react-toastify';
-import { Toaster } from 'react-hot-toast';
+import { RouterProvider } from "react-router-dom";
+import router from "./app/routes";
+import { AuthProvider } from "./app/context/AuthContext";
+import { CartProvider } from "./app/context/CartContext";
 
 const App = () => {
   return (
-    <div>
-          <RouterProvider router={router} />
-          <ToastContainer />
-          <Toaster />
-    </div>
+    <AuthProvider>
+      <CartProvider>
+        <RouterProvider router={router} />
+      </CartProvider>
+    </AuthProvider>
+  );
+};
 
-  )
-}
-
-export default App
+export default App;

@@ -1,31 +1,36 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const ProductCard = ({products}) => {
+const ProductCard = ({ products }) => {
 
-  const navigate = useNavigate()
+  console.log(products, "products");
+  const navigate = useNavigate();
 
   const handleProductClick = (id) => {
-    navigate(`/product/${id}`)
+    navigate(`/product/${id}`);
   };
 
   return (
-    <div className="grid grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 px-4">
       {products?.map((product) => (
         <div
           key={product.id}
-          className="flex flex-col border-2 bg-white p-4 rounded-lg shadow-md w-58 h-[24.5rem]"
+          className="flex flex-col border border-gray-200 bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 cursor-pointer"
           onClick={() => handleProductClick(product.id)}
         >
-          <img 
-            src={product.image} 
-            alt={product.title} 
-            className="w-full h-40" 
-          />
-          
-          <div className="flex flex-col justify-between mt-2">
-            <h3 className="text-xl font-semibold">{product.title}</h3>
-            <p className="text-gray-700">${product.price}</p>
+          {/* Product Image */}
+          <div className="w-full h-44 flex justify-center items-center">
+            <img
+              src={product.image}
+              alt={product.title}
+              className="w-full h-full  rounded-md"
+            />
+          </div>
+
+          {/* Product Details */}
+          <div className="mt-3">
+            <h3 className="text-lg font-medium line-clamp-2">{product.title}</h3>
+            <p className="text-blue-600 font-semibold text-lg mt-1">${product.price.toFixed(2)}</p>
           </div>
         </div>
       ))}
@@ -33,4 +38,4 @@ const ProductCard = ({products}) => {
   );
 };
 
-export default ProductCard;
+export default ProductCard

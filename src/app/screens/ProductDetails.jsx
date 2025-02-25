@@ -11,7 +11,7 @@ import discounts from "../data/discount";
 const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const { isLoggedIn } = useAuth();
+  const { user } = useAuth();
   const [product, setProduct] = useState(null);
   const navigate = useNavigate();
 
@@ -19,54 +19,74 @@ const ProductDetails = () => {
     const foundProduct = products.find((item) => item.id === parseInt(id));
     if (foundProduct) {
       setProduct(foundProduct);
+    } else {
+      toast.error("Product not found!");
+      navigate("/");
     }
-  }, [id]);
+  }, [id, navigate]);
 
   const handleAddToCart = () => {
-    if (!isLoggedIn) {
+    if (!user) {
       toast.error("You must be logged in to add to cart!");
-      navigate("/login");
       return;
     }
     addToCart(product);
     toast.success("Added to Cart!");
   };
 
-  if (!product) return <p className="text-center mt-10">Product not found.</p>;
+  if (!product) return <p className="text-center mt-10">Loading product...</p>;
 
+  // Get discount for the product
   const discountData = discounts.find((item) => item.id === product.id);
   const discountPercent = discountData ? discountData.discount : 0;
   const discountedPrice = product.price - (product.price * discountPercent) / 100;
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <Toaster position="top-center" />
       <NavBar />
-      <div className="flex flex-col md:flex-row items-center mt-10 gap-10 px-5">
+
+      <div className="flex flex-col md:flex-row items-center mt-10 gap-10 px-6 lg:px-16">
+        {/* Product Image & Add to Cart */}
         <div className="w-full md:w-1/3 flex flex-col items-center">
-          <img src={product.image} alt={product.title} className="w-64 h-64" />
+          <img 
+            src={product.image} 
+            alt={product.title} 
+            className="w-64 h-64 rounded-lg shadow-md" 
+          />
           <button
             onClick={handleAddToCart}
-            className="mt-5 bg-blue-500 text-white py-2 px-5 rounded-lg"
+            className="mt-6 bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition duration-200 text-lg font-semibold shadow-md"
           >
             Add to Cart
           </button>
         </div>
-        <div className="w-full md:w-2/3">
-          <h3 className="text-2xl font-bold">{product.title}</h3>
-          <p>
-            ⭐ {product.rating.rate} ({product.rating.count} reviews)
-          </p>
-          <p className="text-green-600 font-bold">Price: ${product.price}</p>
-          <span className="text-red-500 font-bold">
-            ${discountedPrice.toFixed(2)}
-          </span>{" "}
-          {discountPercent > 0 && (
-            <span className="text-green-500">({discountPercent}% OFF)</span>
+
+        {/* Product Details */}
+        <div className="w-full md:w-2/3 bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-3xl font-bold text-gray-800">{product.title}</h3>
+          {product.rating && (
+            <p className="text-gray-600 mt-1 text-lg">
+              ⭐ {product.rating.rate} ({product.rating.count} reviews)
+            </p>
           )}
-          <p>{product.description}</p>
+          <p className="text-gray-700 mt-4 leading-relaxed">{product.description}</p>
+
+          {/* Price Section */}
+          <div className="mt-4">
+            <p className="text-gray-500 text-lg line-through">${product.price.toFixed(2)}</p>
+            {discountPercent > 0 ? (
+              <p className="text-2xl font-bold text-red-500">
+                ${discountedPrice.toFixed(2)}{" "}
+                <span className="text-green-500 text-lg">({discountPercent}% OFF)</span>
+              </p>
+            ) : (
+              <p className="text-xl font-bold text-gray-700">No Discount Available</p>
+            )}
+          </div>
         </div>
       </div>
+
       <Footer />
     </div>
   );

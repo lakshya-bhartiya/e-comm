@@ -1,31 +1,31 @@
-import { createContext, useContext, useState,} from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import users from "../data/user";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")) || null);
 
-  // Function to login (store token)
-  const login = (userToken) => {
-    localStorage.setItem("token", userToken); // Store token in localStorage
-    setToken(userToken);
+  const login = (email, password) => {
+    const foundUser = users.find((u) => u.email === email && u.password === password);
+    if (foundUser) {
+      setUser(foundUser);
+      localStorage.setItem("user", JSON.stringify(foundUser));
+      return true;
+    }
+    return false;
   };
 
-  // Function to logout (remove token)
   const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
+    setUser(null);
+    localStorage.removeItem("user");
   };
-
-  // Check if user is logged in
-  const isLoggedIn = !!token;
 
   return (
-    <AuthContext.Provider value={{ token, isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook to access AuthContext
 export const useAuth = () => useContext(AuthContext);
