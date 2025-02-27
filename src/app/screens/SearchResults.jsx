@@ -10,9 +10,6 @@ const SearchResults = () => {
   const queryParams = new URLSearchParams(location.search);
   const searchQuery = queryParams.get("query")?.trim().toLowerCase() || "";
 
-  console.log("Search Query:", searchQuery);
-
-  // ✅ Filter only products where title includes search query
   const filteredProducts = products.filter((product) =>
     product.title.toLowerCase().includes(searchQuery)
   );

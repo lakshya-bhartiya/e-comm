@@ -4,20 +4,17 @@ import { useAuth } from "./AuthContext";
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const { user } = useAuth(); // Get the logged-in user
+  const { user } = useAuth();
   const [cart, setCart] = useState([]);
 
-  // ✅ Get user-specific cart from localStorage
   useEffect(() => {
     if (user) {
       const savedCart = localStorage.getItem(`cart_${user.email}`);
       setCart(savedCart ? JSON.parse(savedCart) : []);
     } else {
-      setCart([]); // If no user, empty cart
+      setCart([])
     }
   }, [user]);
-
-  // ✅ Save cart per user in localStorage
   useEffect(() => {
     if (user) {
       localStorage.setItem(`cart_${user.email}`, JSON.stringify(cart));
@@ -50,8 +47,13 @@ export const CartProvider = ({ children }) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem("cart");
+  };
+
   return (
-    <CartContext.Provider value={{ cart, addToCart, decreaseQuantity, removeFromCart }}>
+    <CartContext.Provider value={{ cart, addToCart, decreaseQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );

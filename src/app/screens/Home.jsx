@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+
 import Footer from "../components/footer/Footer";
 import NavBar from "../components/navBar/NavBar";
 import ProductCard from "../components/productCard/ProductCard";

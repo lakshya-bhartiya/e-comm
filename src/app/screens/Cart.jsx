@@ -2,6 +2,7 @@ import React from "react";
 import { useCart } from "../context/CartContext";
 import NavBar from "../components/navBar/NavBar";
 import Footer from "../components/footer/Footer";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const { cart, addToCart, decreaseQuantity, removeFromCart } = useCart();
@@ -10,6 +11,8 @@ const Cart = () => {
     const itemPrice = item.discountedPrice ?? item.price;
     return total + itemPrice * item.quantity;
   }, 0);
+
+  const navigate = useNavigate()
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -89,6 +92,12 @@ const Cart = () => {
         {cart.length > 0 && (
           <div className="text-right mt-6 p-4 border-t">
             <h3 className="text-2xl font-bold">Grand Total: ${cartTotal.toFixed(2)}</h3>
+            <button
+    onClick={() => navigate("/checkout")}
+    className="mt-3 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+  >
+    Proceed to Checkout
+  </button>
           </div>
         )}
       </div>
