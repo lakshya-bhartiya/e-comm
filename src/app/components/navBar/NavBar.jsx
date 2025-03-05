@@ -1,6 +1,6 @@
 
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { useState } from "react";
@@ -13,9 +13,14 @@ const NavBar = () => {
   const [search, setSearch] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log("Search for:", search);
+    
+    if (search.trim()) {
+      navigate(`/search?query=${search}`);
+    }
   };
 
   return (
