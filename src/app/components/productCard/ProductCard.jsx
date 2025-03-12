@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ products }) => {
 
-  console.log(products, "products");
   const navigate = useNavigate();
 
   const handleProductClick = (id) => {

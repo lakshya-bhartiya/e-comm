@@ -12,11 +12,22 @@ const Checkout = () => {
   const navigate = useNavigate();
 
   const cartTotal = cart.reduce((total, item) => {
-    const price = item.discountedPrice !== undefined ? item.discountedPrice : item.price;
+    const price =
+      item.discountedPrice !== undefined ? item.discountedPrice : item.price;
     return total + price * item.quantity;
   }, 0);
 
-  const handleCheckout = () => {
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleCheckout = async () => {
     if (!user) {
       toast.error("Please log in to checkout!");
       return;
@@ -27,21 +38,56 @@ const Checkout = () => {
       return;
     }
 
-    const newOrder = {
-      id: Date.now(), 
-      userEmail: user.email,
-      items: cart,
-      total: cartTotal.toFixed(2),
-      date: new Date().toLocaleString(),
+    const res = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+    );
+    if (!res) {
+      toast.error("Failed to load. Please check your internet connection.");
+      return;
+    }
+
+    const options = {
+      key: "rzp_test_obgigNzKh7TvP7",
+      amount: cartTotal * 100,
+      currency: "INR",
+      name: "E-Commerce Store",
+      description: "Order Payment",
+      handler: (response) => {
+        console.log(response);
+        const newOrder = {
+          id: Date.now(),
+          userEmail: user.email,
+          items: cart,
+          total: cartTotal.toFixed(2),
+          date: new Date().toLocaleString(),
+          paymentId: response.razorpay_payment_id,
+        };
+
+        const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
+        localStorage.setItem(
+          "orders",
+          JSON.stringify([...existingOrders, newOrder])
+        );
+
+        clearCart();
+        toast.success("Payment successful! Order placed.");
+        navigate("/orders");
+      },
+      prefill: {
+        name: user.name || "Test User",
+        email: user.email || "test@example.com",
+      },
+      theme: {
+        color: "#3399cc",
+      },
     };
 
-    const existingOrders = JSON.parse(localStorage.getItem("orders")) || [];
-    localStorage.setItem("orders", JSON.stringify([...existingOrders, newOrder]));
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
 
-    clearCart(); 
-    toast.success("Order placed successfully!");
-
-    navigate("/orders");
+    paymentObject.on("payment.failed", (response) => {
+      toast.error(`Payment failed: ${response.error.description}`);
+    });
   };
 
   return (
@@ -56,15 +102,22 @@ const Checkout = () => {
         ) : (
           <div className="border p-4 rounded-lg shadow-md">
             {cart.map((item) => (
-              <div key={item.id} className="flex justify-between items-center mb-4">
+              <div
+                key={item.id}
+                className="flex justify-between items-center mb-4"
+              >
                 <div>
                   <h3 className="text-lg font-bold">{item.title}</h3>
                   <p className="text-gray-600">
-                    {item.quantity} x ${item.discountedPrice?.toFixed(2) || item.price.toFixed(2)}
+                    {item.quantity} x $
+                    {item.discountedPrice?.toFixed(2) || item.price.toFixed(2)}
                   </p>
                 </div>
                 <p className="text-blue-600 font-bold">
-                  ${(item.discountedPrice !== undefined ? item.discountedPrice : item.price) * item.quantity}
+                  $
+                  {(item.discountedPrice !== undefined
+                    ? item.discountedPrice
+                    : item.price) * item.quantity}
                 </p>
               </div>
             ))}

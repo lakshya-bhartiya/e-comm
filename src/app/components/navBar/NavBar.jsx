@@ -1,11 +1,13 @@
-
-
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { useState } from "react";
 import { FaBoxOpen } from "react-icons/fa";
 import { CiLogout, CiSearch } from "react-icons/ci";
+import categories from "../../data/categories";
+import { Menu } from "@headlessui/react";
+import { BiCategory } from "react-icons/bi";
+
 
 const NavBar = () => {
   const { user, logout } = useAuth();
@@ -51,6 +53,32 @@ const NavBar = () => {
         <CiSearch />
         </button>
       </form>
+
+      {/* category */}
+
+      <div className="relative inline-block text-left">
+            <Menu>
+              <Menu.Button className="text-lg font-medium hover:text-gray-600">
+                 Category
+              </Menu.Button>
+              <Menu.Items className="absolute mt-2 bg-white shadow-lg rounded w-40 z-10">
+                {categories?.map((category, index) => (
+                  <Menu.Item key={index}>
+                    {({ active }) => (
+                      <Link
+                        to={`/category/${category}`}
+                        className={`${
+                          active ? "bg-gray-100" : ""
+                        } block px-4 py-2 text-gray-700 text-decoration-none`}
+                      >
+                        {category}
+                      </Link>
+                    )}
+                  </Menu.Item>
+                ))}
+              </Menu.Items>
+            </Menu>
+          </div>
 
       {/* Right Section: Cart & Profile */}
       <div className="flex items-center gap-6">
